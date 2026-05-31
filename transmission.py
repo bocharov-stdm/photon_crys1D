@@ -356,7 +356,9 @@ class TransmissionApp:
         self.ax.set_ylabel("T — коэффициент пропускания")
         self.ax.set_xlim(lambda_min, lambda_max)
         self.ax.set_ylim(0, 1.05)
-        self.ax.grid(alpha=0.18)
+        self.ax.minorticks_on()
+        self.ax.grid(which="major", alpha=0.6, linewidth=1.0)
+        self.ax.grid(which="minor", alpha=0.38, linewidth=0.7)
         self.ax.legend(frameon=False, loc="upper right")
 
         self.figure.tight_layout()
