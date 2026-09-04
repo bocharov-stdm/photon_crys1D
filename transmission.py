@@ -22,6 +22,7 @@ from optical_core import (
     is_half_wave,
     is_quarter_wave,
     optical_thickness,
+    parse_int,
     parse_number,
     reflection_transmission,
 )
@@ -53,6 +54,7 @@ class TransmissionApp:
         self.root.title("Пропускание с дефектной пластинкой")
 
         self.entries: dict[str, tk.Entry] = {}
+        self.labels: dict[str, str] = {}
         self.show_regular = tk.BooleanVar(value=True)
         self.optical_H_text = tk.StringVar()
         self.optical_L_text = tk.StringVar()
@@ -104,6 +106,7 @@ class TransmissionApp:
             entry.grid(row=row, column=1, sticky="ew", pady=3)
             entry.bind("<KeyRelease>", self.update_optical_labels)
             self.entries[key] = entry
+            self.labels[key] = label
 
         optical_row = len(fields) + 2
         tk.Label(panel, textvariable=self.optical_H_text, fg="#444444").grid(
@@ -189,10 +192,10 @@ class TransmissionApp:
             self.canvas.draw_idle()
 
     def float_value(self, key: str) -> float:
-        return parse_number(self.entries[key].get())
+        return parse_number(self.entries[key].get(), self.labels.get(key, key))
 
     def int_value(self, key: str) -> int:
-        return int(self.entries[key].get().strip())
+        return parse_int(self.entries[key].get(), self.labels.get(key, key))
 
     def read_parameters(self) -> dict[str, float | int]:
         values: dict[str, float | int] = {

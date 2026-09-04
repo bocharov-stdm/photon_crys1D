@@ -22,16 +22,56 @@ DEFAULT_N_L = 1.25
 DEFAULT_N_D = 2.0
 
 
-def parse_number(text: str) -> float:
-    """Позволяет вводить числа как 0.125, 0,125 или дроби вида 1/8."""
+def parse_number(text: str, name: str = "значение") -> float:
+    """Позволяет вводить числа как 0.125, 0,125 или дроби вида 1/8.
+
+    Любой некорректный ввод превращается в ValueError с понятным
+    сообщением: UI показывает его пользователю как есть.
+    """
+    raw = text
     text = text.strip().replace(",", ".")
 
-    if "/" in text:
-        # Дробная запись удобна для толщин вроде lambda_0/8.
-        numerator, denominator = text.split("/", maxsplit=1)
-        return float(numerator) / float(denominator)
+    if not text:
+        raise ValueError(f"Поле «{name}» не заполнено.")
 
-    return float(text)
+    try:
+        if "/" in text:
+            # Дробная запись удобна для толщин вроде lambda_0/8.
+            numerator, denominator = text.split("/", maxsplit=1)
+            denominator_value = float(denominator)
+
+            if denominator_value == 0:
+                raise ValueError("деление на ноль")
+
+            value = float(numerator) / denominator_value
+        else:
+            value = float(text)
+    except (ValueError, ZeroDivisionError) as error:
+        raise ValueError(
+            f"Не удалось прочитать поле «{name}»: «{raw.strip()}». "
+            f"Допустимы записи вида 0.125, 0,125 или 1/8."
+        ) from error
+
+    if not np.isfinite(value):
+        raise ValueError(f"Поле «{name}» должно быть конечным числом.")
+
+    return value
+
+
+def parse_int(text: str, name: str = "значение") -> int:
+    """Целое число из поля ввода с понятным сообщением об ошибке."""
+    raw = text
+    text = text.strip()
+
+    if not text:
+        raise ValueError(f"Поле «{name}» не заполнено.")
+
+    try:
+        return int(text)
+    except ValueError as error:
+        raise ValueError(
+            f"Поле «{name}» должно быть целым числом, получено «{raw.strip()}»."
+        ) from error
 
 
 def optical_thickness(n: float, h: float, lambda_0: float = LAMBDA_0) -> float:
