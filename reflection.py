@@ -21,6 +21,7 @@ from optical_core import (
     bragg_stack,
     is_quarter_wave,
     optical_thickness,
+    parse_int,
     parse_number,
     reflection_transmission,
 )
@@ -47,6 +48,7 @@ class ReflectionApp:
         self.root.title("Отражение брэгговской стопки")
 
         self.entries: dict[str, tk.Entry] = {}
+        self.labels: dict[str, str] = {}
         self.first_layer = tk.StringVar(value="H")
         self.optical_H_text = tk.StringVar()
         self.optical_L_text = tk.StringVar()
@@ -96,6 +98,7 @@ class ReflectionApp:
             entry.grid(row=row, column=1, sticky="ew", pady=4)
             entry.bind("<KeyRelease>", self.update_optical_labels)
             self.entries[key] = entry
+            self.labels[key] = label
 
         optical_row = len(fields) + 2
         tk.Label(panel, textvariable=self.optical_H_text, fg="#444444").grid(
@@ -191,14 +194,18 @@ class ReflectionApp:
             self.canvas.draw_idle()
 
     def float_value(self, key: str) -> float:
-        return parse_number(self.entries[key].get())
+        return parse_number(self.entries[key].get(), self.labels.get(key, key))
 
     def int_value(self, key: str) -> int:
-        return int(self.entries[key].get().strip())
+        return parse_int(self.entries[key].get(), self.labels.get(key, key))
 
     def periods(self) -> list[int]:
         raw = self.entries["periods"].get().replace(";", ",")
-        values = [int(part.strip()) for part in raw.split(",") if part.strip()]
+        values = [
+            parse_int(part, "Число периодов N")
+            for part in raw.split(",")
+            if part.strip()
+        ]
 
         if not values:
             raise ValueError("Введите хотя бы одно значение N.")
