@@ -29,6 +29,8 @@ def parse_number(text: str) -> float:
     if "/" in text:
         # Дробная запись удобна для толщин вроде lambda_0/8.
         numerator, denominator = text.split("/", maxsplit=1)
+        if float(denominator) == 0:
+            raise ValueError("Знаменатель дроби не может быть нулем.")
         return float(numerator) / float(denominator)
 
     return float(text)

@@ -296,6 +296,10 @@ class TransmissionApp:
         points = int(values["points"])
 
         wavelengths = np.linspace(lambda_min * LAMBDA_0, lambda_max * LAMBDA_0, points)
+        # Резонанс полуволнового дефекта очень узкий: если сетка не попадает
+        # точно в lambda_0, пик на графике получается ниже единицы.
+        if lambda_min <= 1.0 <= lambda_max:
+            wavelengths = np.union1d(wavelengths, [LAMBDA_0])
 
         self.ax.clear()
         self.update_optical_labels()
@@ -359,7 +363,8 @@ class TransmissionApp:
         self.ax.minorticks_on()
         self.ax.grid(which="major", alpha=0.6, linewidth=1.0)
         self.ax.grid(which="minor", alpha=0.38, linewidth=0.7)
-        self.ax.legend(frameon=False, loc="upper right")
+        # Легенда под осями: длинная подпись не перекрывает пик пропускания.
+        self.ax.legend(frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.14))
 
         self.figure.tight_layout()
         self.canvas.draw()

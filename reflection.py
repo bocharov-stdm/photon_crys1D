@@ -326,7 +326,13 @@ class ReflectionApp:
         self.ax.minorticks_on()
         self.ax.grid(which="major", alpha=0.6, linewidth=1.0)
         self.ax.grid(which="minor", alpha=0.38, linewidth=0.7)
-        self.ax.legend(frameon=False, loc="lower right")
+        # Легенда под осями в одну строку, чтобы не закрывать кривые.
+        self.ax.legend(
+            frameon=False,
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.14),
+            ncol=len(periods_list),
+        )
 
         self.figure.tight_layout()
         self.canvas.draw()
